@@ -1,14 +1,41 @@
-- name: Install dependencies
-    run: |
-    pip install flask xgboost scikit-learn requests
+name: CI Pipeline
 
-- name: Run Flask in Background
-    run: |
-    cd deploy/web-service
-    python predict.py &
-    sleep 5
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
 
-- name: Run API test
-    run: |
-    cd deploy/web-service
-    python test.py
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.12"
+
+      - name: Install pipenv
+        run: pip install pipenv
+
+      - name: Install dependencies from Pipfile
+        working-directory: deploy/web-service
+        run: pipenv install --deploy --system
+
+      - name: Run Flask app in background
+        working-directory: deploy/web-service
+        run: |
+          python predict.py &
+          sleep 5
+
+      - name: Run test script
+        working-directory: deploy/web-service
+        run: python test.py
+
+      - name: Build Docker image
+        working-directory: deploy/web-service
+        run: docker build -t duration-predictor .
