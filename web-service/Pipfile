@@ -8,6 +8,7 @@ scikit-learn = "==1.6.1"
 flask = "*"
 xgboost = "*"
 gunicorn = "*"
+requests = "*"
 
 [dev-packages]
 
