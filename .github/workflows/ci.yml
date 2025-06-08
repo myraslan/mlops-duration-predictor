@@ -1,0 +1,14 @@
+- name: Install dependencies
+    run: |
+    pip install flask xgboost scikit-learn requests
+
+- name: Run Flask in Background
+    run: |
+    cd deploy/web-service
+    python predict.py &
+    sleep 5
+
+- name: Run API test
+    run: |
+    cd deploy/web-service
+    python test.py
